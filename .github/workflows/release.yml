@@ -11,8 +11,8 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
 
-    # - name: build
-    #   run: ./build.sh
+    - name: build
+      run: ./build.sh
 
     - name: new_name
       run: echo build_name=$(echo ${{github.repository}} | cut -d/ -f2)-$(echo ${{github.ref}} | cut -d/ -f3)-$(uname -p).tar >> $GITHUB_ENV
@@ -20,7 +20,7 @@ jobs:
     - name: upload
       run: |
         az cloud set --name AzureUSGovernment
-        az storage blob upload --file Readme.md \
+        az storage blob upload --file groundsdk/anafi_demux.tar \
                                --container-name misc \
                                --name ${{ env.build_name }} \
                                --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
