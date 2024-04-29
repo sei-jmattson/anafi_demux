@@ -11,13 +11,13 @@ jobs:
     - name: checkout
       uses: actions/checkout@v3
 
-    - name: build
-      run: ./build.sh
+    # - name: build
+    #   run: ./build.sh
 
     - name: upload
       run: |
         az cloud set --name AzureUSGovernment
-        az storage blob upload --file groundsdk/anafi_demux.tar \
+        az storage blob upload --file Readme.md \
                                --container-name misc \
                                --name ${{ startsWith(github.repository, github.repository_owner) }}-${{ startsWith(github.ref, 'refs/tags/') }}-amd64.tar \
                                --connection-string "${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
