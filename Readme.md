@@ -13,7 +13,7 @@ Examples:
 $ anafi_demux
 usage: anafi_demux <url> <output_path> [fps]
         url is rtsp:// or path/to/recorded.mp4
-        output_path "-" means stdout
+        output_path "-" means stdout, otherwise a folder for frame files
         fps defaults to 1
 
 # connect to skycontroller and downsample to 2 fps

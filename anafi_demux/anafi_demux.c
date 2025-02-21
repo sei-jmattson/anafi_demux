@@ -53,7 +53,9 @@ int main(int argc, char **argv)
 	uint64_t frame_count = 0, subframe_count = 0;
 	size_t frame_interval, image_bflen;
 	float frame_rate, fps = 1.0;
-	FILE *outfp;
+	char * out_path;
+	char out_fn[255];
+	FILE *out_fp;
 
 	// create metadata buffer
 	uint8_t *meta_bf = NULL;
@@ -66,11 +68,12 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	out_path = argv[2];
+
 	// open destination stream
-	outfp = stdout;
-	if (strcmp(argv[2], "-") != 0)
+	if (strcmp(out_path, "-") == 0)
 	{
-		outfp = fopen(argv[2], "wb");
+		out_fp = stdout;
 	}
 
 	// get requested fps
@@ -152,14 +155,25 @@ int main(int argc, char **argv)
 		vb.pos = 0;
 		vmeta_frame_write(&vb, frame_meta);
 
+		// if not stdout, open frame file
+		if (out_fp != stdout) {
+			snprintf(out_fn, 255, "%s/F%08ld.bin", out_path, frame_count);
+			out_fp = fopen(out_fn, "wb");
+		}
+
 		// output
-		be_put(1346437120, outfp);
-		be_put(vb.pos, outfp);
-		fwrite(vb.data, vb.pos, 1, outfp);
-		be_put2(frame_info.raw.info.resolution.width, outfp);
-		be_put2(frame_info.raw.info.resolution.height, outfp);
-		be_put(image_bflen, outfp);
-		fwrite(image_bf, image_bflen, 1, outfp);
+		be_put(1346437120, out_fp);
+		be_put(vb.pos, out_fp);
+		fwrite(vb.data, vb.pos, 1, out_fp);
+		be_put2(frame_info.raw.info.resolution.width, out_fp);
+		be_put2(frame_info.raw.info.resolution.height, out_fp);
+		be_put(image_bflen, out_fp);
+		fwrite(image_bf, image_bflen, 1, out_fp);
+
+		// if not stdout, close frame file
+		if (out_fp != stdout) {
+			fclose(out_fp);
+		}
 
 		// rate-limit logs
 		subframe_count += 1;
@@ -178,7 +192,7 @@ int main(int argc, char **argv)
 	}
 
 	// release resources
-	fclose(outfp);
+	fclose(out_fp);
 	free(meta_bf);
 	res = pdraw_vsink_stop(vsink);
 	if (res < 0)

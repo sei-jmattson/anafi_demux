@@ -2,7 +2,7 @@
 ## build image
 ##
 FROM ubuntu:jammy as build
-MAINTAINER jmattson@sei.cmu.edu
+LABEL MAINTAINER=jmattson@sei.cmu.edu
 
 # install dependencies
 RUN apt-get update && apt-get -y install \
