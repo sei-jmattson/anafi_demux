@@ -15,17 +15,21 @@ mkdir -p ./groundsdk
 cd ./groundsdk
 
 ## download
+git config --global color.ui true
 repo init -u https://github.com/Parrot-Developers/groundsdk-tools-manifest
 repo sync
-if [ -f ".repo/manifests/EULA.md" ]; then
-    rm .repo/manifests/EULA* 2> /dev/null
-fi
+rm .repo/manifests/EULA* 2> /dev/null || true
+
+## patch
+cd ./packages/ffmpeg
+git apply ../../../effadce6.diff || true
+cd -
 
 ## build
 cp -r ../anafi_demux ./packages
-./build.sh -p groundsdk-linux -t build -A anafi_demux -j/1
+./build.sh -p groundsdk-linux -t build -A anafi_demux -j/1 --no-color
 
-# package
+## package
 mkdir -p $dist
 cp ../Readme.md $dist
 cp out/groundsdk-linux/final/usr/bin/anafi_demux $dist
